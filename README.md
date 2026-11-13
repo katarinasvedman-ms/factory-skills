@@ -101,15 +101,21 @@ rerunning; do not delete existing skills to retry a release.
 ### GitHub-to-Foundry release flow
 
 The `Publish Foundry skills` workflow runs automatically on a push/merge to
-`main`, or manually on `main` for recovery. Pull requests run validation only
-and cannot obtain the publishing identity.
+`main`, or manually on `main` for recovery. For this PoC, Copilot handles git
+directly: no PR or deployment-approval click is required. Optional pull requests
+still run validation only and cannot obtain the publishing identity.
 
-1. Edit a skill or supporting resource, increment its version in `catalog.json`,
-   update `evaluations.json` when behavior changes, and push a PR.
-2. CI checks content, version increments, tests, lint, formatting and the
-   reproducible source package.
-3. Merge to `main`. In **Actions > Publish Foundry skills**, approve the
-   `foundry-publish` environment under **Review deployments**.
+1. Tell Copilot the skill behavior you want to add or change. Copilot edits the
+   skill/resources, maintains `catalog.json` and `evaluations.json`, runs checks,
+   commits and pushes to `main`. The repository instructions in
+   `.github\copilot-instructions.md` define this authoring workflow.
+2. Existing skill content changes get a patch-version increment by default;
+   new skills start at `1.0.0`. Roles/tasks/technologies remain unchanged unless
+   applicability changes. Copilot maintains observable evaluation expectations
+   and an irrelevant negative task; CI does not infer them from prose.
+3. The push automatically starts CI, which checks content, version increments,
+   tests, lint, formatting and the reproducible source package. On success it
+   proceeds to publication without a human approval gate.
 4. The publisher uses GitHub OIDC, without a stored Azure secret. It uploads
    changed skill packages once and creates only affected `<role>-skills`
    Toolbox versions. Shared skills use the same pin across every consuming role.
@@ -158,8 +164,10 @@ removed, so local identity-isolated model runs require new worker credentials.
 
 ### GitHub environment configuration
 
-The `foundry-publish` environment requires an approval and allows only the `main`
-branch. Its Azure application has a federated credential with issuer
+The `foundry-publish` environment has no required reviewer or wait timer for this
+PoC and allows only the `main` branch. Removing human review is a deliberate demo
+simplification, not a production recommendation. Its Azure application has a
+federated credential with issuer
 `https://token.actions.githubusercontent.com`, audience
 `api://AzureADTokenExchange`, and subject
 `repo:katarinasvedman-ms@80513761/factory-skills@1455411481:environment:foundry-publish`.
