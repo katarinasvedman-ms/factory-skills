@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 concurrency:
   group: foundry-publish
   cancel-in-progress: false
@@ -42,8 +45,8 @@ jobs:
           fi
           mkdir -p dist
           python -c 'import json, os; from pathlib import Path; Path("dist/role-identities.json").write_text(json.dumps(json.loads(os.environ["ROLE_IDENTITIES"])))'
-          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
-            --jq '[.[][] | select((.tag_name | startswith("foundry-")) and (.draft | not) and (.prerelease | not))] | sort_by(.published_at) | last | .tag_name // ""')
+          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases?per_page=100" |
+            jq -r '[.[][] | select((.tag_name | startswith("foundry-")) and (.draft | not) and (.prerelease | not))] | sort_by(.published_at) | last | .tag_name // ""')
           if [[ -n "$tag" ]]; then
             gh release download "$tag" --pattern role-bindings.json --dir dist/previous
           fi
