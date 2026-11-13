@@ -27,8 +27,9 @@ def test_publisher_preserves_resources_and_pins_every_reference(library):
         library, "https://test.services.ai.azure.com/api/projects/test", "factory", request
     )
     assert binding["version"] == "4"
-    assert len(binding["skills"]) == 10
-    assert len(calls) == 11
+    count = len(json.loads((library / "catalog.json").read_text())["skills"])
+    assert len(binding["skills"]) == count
+    assert len(calls) == count + 1
 
 
 ENDPOINT = "https://test.services.ai.azure.com/api/projects/test"
@@ -75,7 +76,9 @@ def release(library, service, baseline=None):
 def test_role_release_filters_pins_and_preserves_every_supporting_file(library):
     service = Foundry()
     result = release(library, service)
-    assert len(service.packages) == 10
+    assert len(service.packages) == len(
+        json.loads((library / "catalog.json").read_text())["skills"]
+    )
     assert len(service.toolboxes) == 5
     assert "architecture-analysis" not in result["roles"]["coder"]["skills"]
     assert "test-strategy" in result["roles"]["coder"]["skills"]
@@ -104,9 +107,9 @@ def test_changed_shared_resource_updates_one_package_and_all_consuming_roles(lib
     resource = library / "skills/dotnet-development/references/validation.md"
     resource.write_text(resource.read_text() + "\nAdditional compatibility check.\n")
     catalog = json.loads((library / "catalog.json").read_text())
-    next(entry for entry in catalog["skills"] if entry["id"] == "dotnet-development")["version"] = (
-        "1.0.2"
-    )
+    entry = next(entry for entry in catalog["skills"] if entry["id"] == "dotnet-development")
+    major, minor, patch = entry["version"].split(".")
+    entry["version"] = f"{major}.{minor}.{int(patch) + 1}"
     (library / "catalog.json").write_text(json.dumps(catalog))
     result = release(library, service, first)
     assert result["release"]["uploaded_skills"] == ["dotnet-development"]
