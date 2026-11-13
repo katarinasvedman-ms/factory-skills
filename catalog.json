@@ -2,54 +2,229 @@
   "schema_version": 1,
   "skills": [
     {
-      "id": "architecture-analysis", "version": "1.0.0", "path": "skills/architecture-analysis",
-      "roles": ["architect"], "technologies": ["*"], "tasks": ["*"],
-      "prerequisites": [], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "architecture-analysis",
+      "version": "1.0.0",
+      "path": "skills/architecture-analysis",
+      "roles": [
+        "architect"
+      ],
+      "technologies": [
+        "*"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "implementation-planning", "version": "1.0.0", "path": "skills/implementation-planning",
-      "roles": ["planner"], "technologies": ["*"], "tasks": ["*"],
-      "prerequisites": [], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "implementation-planning",
+      "version": "1.0.0",
+      "path": "skills/implementation-planning",
+      "roles": [
+        "planner"
+      ],
+      "technologies": [
+        "*"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "code-review", "version": "1.0.0", "path": "skills/code-review",
-      "roles": ["reviewer"], "technologies": ["*"], "tasks": ["*"],
-      "prerequisites": [], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "code-review",
+      "version": "1.0.0",
+      "path": "skills/code-review",
+      "roles": [
+        "reviewer"
+      ],
+      "technologies": [
+        "*"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "test-strategy", "version": "1.0.0", "path": "skills/test-strategy",
-      "roles": ["tester", "coder"], "technologies": ["*"], "tasks": ["testing", "implementation"],
-      "prerequisites": [], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "test-strategy",
+      "version": "1.0.0",
+      "path": "skills/test-strategy",
+      "roles": [
+        "tester",
+        "coder"
+      ],
+      "technologies": [
+        "*"
+      ],
+      "tasks": [
+        "testing",
+        "implementation"
+      ],
+      "prerequisites": [],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "legacy-code-analysis", "version": "1.0.0", "path": "skills/legacy-code-analysis",
-      "roles": ["architect", "planner", "coder", "reviewer"], "technologies": ["*"], "tasks": ["legacy"],
-      "prerequisites": [], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "legacy-code-analysis",
+      "version": "1.0.0",
+      "path": "skills/legacy-code-analysis",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer"
+      ],
+      "technologies": [
+        "*"
+      ],
+      "tasks": [
+        "legacy"
+      ],
+      "prerequisites": [],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "dotnet-development", "version": "1.0.1", "path": "skills/dotnet-development",
-      "roles": ["architect", "planner", "coder", "reviewer", "tester"], "technologies": ["dotnet"], "tasks": ["*"],
-      "prerequisites": ["dotnet"], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "dotnet-development",
+      "version": "1.0.2",
+      "path": "skills/dotnet-development",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer",
+        "tester"
+      ],
+      "technologies": [
+        "dotnet"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [
+        "dotnet"
+      ],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "java-development", "version": "1.0.0", "path": "skills/java-development",
-      "roles": ["architect", "planner", "coder", "reviewer", "tester"], "technologies": ["java"], "tasks": ["*"],
-      "prerequisites": ["java"], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "java-development",
+      "version": "1.0.0",
+      "path": "skills/java-development",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer",
+        "tester"
+      ],
+      "technologies": [
+        "java"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [
+        "java"
+      ],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "python-development", "version": "1.0.0", "path": "skills/python-development",
-      "roles": ["architect", "planner", "coder", "reviewer", "tester"], "technologies": ["python"], "tasks": ["*"],
-      "prerequisites": ["python"], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "python-development",
+      "version": "1.0.0",
+      "path": "skills/python-development",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer",
+        "tester"
+      ],
+      "technologies": [
+        "python"
+      ],
+      "tasks": [
+        "*"
+      ],
+      "prerequisites": [
+        "python"
+      ],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "api-development", "version": "1.0.0", "path": "skills/api-development",
-      "roles": ["architect", "planner", "coder", "reviewer", "tester"], "technologies": ["api"], "tasks": ["api"],
-      "prerequisites": ["api"], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "api-development",
+      "version": "1.0.0",
+      "path": "skills/api-development",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer",
+        "tester"
+      ],
+      "technologies": [
+        "api"
+      ],
+      "tasks": [
+        "api"
+      ],
+      "prerequisites": [
+        "api"
+      ],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     },
     {
-      "id": "database-changes", "version": "1.0.0", "path": "skills/database-changes",
-      "roles": ["architect", "planner", "coder", "reviewer", "tester"], "technologies": ["sqlserver"], "tasks": ["database"],
-      "prerequisites": ["sqlserver"], "dependencies": [], "compatibility": ["copilot-sdk-python-1"]
+      "id": "database-changes",
+      "version": "1.0.0",
+      "path": "skills/database-changes",
+      "roles": [
+        "architect",
+        "planner",
+        "coder",
+        "reviewer",
+        "tester"
+      ],
+      "technologies": [
+        "sqlserver"
+      ],
+      "tasks": [
+        "database"
+      ],
+      "prerequisites": [
+        "sqlserver"
+      ],
+      "dependencies": [],
+      "compatibility": [
+        "copilot-sdk-python-1"
+      ]
     }
   ]
 }
