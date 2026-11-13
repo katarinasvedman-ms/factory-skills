@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "skills"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "path", "roles", "technologies", "tasks", "prerequisites", "dependencies", "compatibility"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64},
+          "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+          "path": {"type": "string", "pattern": "^skills/[a-z0-9-]+$"},
+          "roles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["architect", "planner", "coder", "reviewer", "tester"]}},
+          "technologies": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["*", "dotnet", "java", "python", "api", "sqlserver"]}},
+          "tasks": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["*", "architecture", "planning", "implementation", "review", "testing", "legacy", "api", "database"]}},
+          "prerequisites": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "compatibility": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"const": "copilot-sdk-python-1"}}
+        }
+      }
+    }
+  }
+}
