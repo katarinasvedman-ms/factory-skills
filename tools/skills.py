@@ -128,6 +128,28 @@ def build(root: Path, output: Path) -> dict:
     return release
 
 
+def bump_versions(root: Path, binding: dict | None) -> dict:
+    catalog = validate(root)
+    previous = binding["release"]["skills"] if binding else {}
+    updates = {}
+    for entry in catalog["skills"]:
+        name = entry["id"]
+        old = previous.get(name)
+        if old is None:
+            continue
+        before = tuple(map(int, old["catalog_version"].split(".")))
+        current = tuple(map(int, entry["version"].split(".")))
+        if current < before:
+            raise ValueError(f"Catalog version is older than the published version: {name}")
+        if file_hashes(root / entry["path"]) != old["files"] and current == before:
+            number = f"{before[0]}.{before[1]}.{before[2] + 1}"
+            updates[name] = {"before": entry["version"], "after": number}
+            entry["version"] = number
+    if updates:
+        (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+    return updates
+
+
 def verify_changes(root: Path, baseline: str) -> None:
     if not re.fullmatch(r"[a-f0-9]{40}", baseline):
         raise ValueError("Baseline must be a full commit SHA")
@@ -157,13 +179,23 @@ def verify_changes(root: Path, baseline: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["validate", "build"])
+    parser.add_argument("command", choices=["validate", "build", "version"])
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path, default=Path("dist/release"))
     parser.add_argument("--baseline", help="Reject changed skills without a version increment")
+    parser.add_argument(
+        "--release-binding", type=Path, help="Last promoted Foundry binding for automatic versions"
+    )
     args = parser.parse_args()
     if args.command == "build":
         build(args.root, args.output)
+    elif args.command == "version":
+        binding = (
+            json.loads(args.release_binding.read_text(encoding="utf-8"))
+            if args.release_binding
+            else None
+        )
+        print(json.dumps(bump_versions(args.root, binding), indent=2))
     else:
         validate(args.root)
         if args.baseline:

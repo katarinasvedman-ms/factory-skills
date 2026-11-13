@@ -2,6 +2,13 @@ name: Validate skills
 on:
   pull_request:
   workflow_call:
+    inputs:
+      source_ref:
+        type: string
+        default: ""
+      version_baseline:
+        type: string
+        default: ""
 permissions:
   contents: read
 jobs:
@@ -10,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_ref || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -17,8 +25,9 @@ jobs:
       - run: python -m pip install -c requirements.lock . --group dev
       - run: python -m tools.skills validate
       - name: Require versions for changed skills
+        if: inputs.source_ref == '' || inputs.version_baseline != ''
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ inputs.version_baseline || github.event.pull_request.base.sha || github.event.before }}
         run: |
           if [[ -n "$BASE_SHA" && ! "$BASE_SHA" =~ ^0+$ ]]; then
             python -m tools.skills validate --baseline "$BASE_SHA"

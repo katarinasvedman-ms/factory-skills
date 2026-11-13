@@ -12,18 +12,81 @@ concurrency:
   group: foundry-publish
   cancel-in-progress: false
 jobs:
+  version:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      commit: ${{ steps.commit.outputs.commit }}
+      baseline_tag: ${{ steps.baseline.outputs.tag }}
+      baseline_commit: ${{ steps.baseline.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -c requirements.lock .
+      - name: Select the last promoted baseline and reject stale pushes
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [[ "$current" != "$GITHUB_SHA" ]]; then
+            echo "Refusing to version a superseded main commit."
+            exit 1
+          fi
+          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases?per_page=100" |
+            jq -r '[.[][] | select((.tag_name | startswith("foundry-")) and (.draft | not) and (.prerelease | not))] | sort_by(.published_at) | last | .tag_name // ""')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [[ -n "$tag" ]]; then
+            gh release download "$tag" --pattern role-bindings.json --dir dist/previous
+            baseline=$(jq -er '.release.source_commit | select(test("^[a-f0-9]{40}$"))' dist/previous/role-bindings.json)
+            echo "commit=$baseline" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Automatically bump changed skill patch versions
+        run: |
+          baseline=()
+          if [[ -f dist/previous/role-bindings.json ]]; then
+            baseline=(--release-binding dist/previous/role-bindings.json)
+          fi
+          python -m tools.skills version "${baseline[@]}"
+      - name: Commit only generated catalog changes without triggering another workflow
+        id: commit
+        run: |
+          if ! git diff --quiet -- catalog.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -- catalog.json
+            git commit -m "chore: update changed skill versions"
+            git push origin HEAD:main
+          fi
+          source=$(git rev-parse HEAD)
+          echo "commit=$source" >> "$GITHUB_OUTPUT"
+          echo "Validated and published source will be: $source" >> "$GITHUB_STEP_SUMMARY"
   validate:
+    needs: version
     uses: ./.github/workflows/ci.yml
+    with:
+      source_ref: ${{ needs.version.outputs.commit }}
+      version_baseline: ${{ needs.version.outputs.baseline_commit }}
   publish:
     if: github.ref == 'refs/heads/main'
-    needs: validate
+    needs: [version, validate]
     runs-on: ubuntu-latest
     environment: foundry-publish
     permissions:
       contents: write
       id-token: write
+    env:
+      SOURCE_COMMIT: ${{ needs.version.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.commit }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -33,22 +96,21 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Read previous promoted release and configured role identities
+      - name: Read the selected baseline and configured role identities
         env:
           GH_TOKEN: ${{ github.token }}
           ROLE_IDENTITIES: ${{ vars.FOUNDRY_ROLE_IDENTITIES }}
+          BASELINE_TAG: ${{ needs.version.outputs.baseline_tag }}
         run: |
           current=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
-          if [[ "$current" != "$GITHUB_SHA" ]]; then
+          if [[ "$current" != "$SOURCE_COMMIT" ]]; then
             echo "Refusing to publish a superseded main commit."
             exit 1
           fi
           mkdir -p dist
           python -c 'import json, os; from pathlib import Path; Path("dist/role-identities.json").write_text(json.dumps(json.loads(os.environ["ROLE_IDENTITIES"])))'
-          tag=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases?per_page=100" |
-            jq -r '[.[][] | select((.tag_name | startswith("foundry-")) and (.draft | not) and (.prerelease | not))] | sort_by(.published_at) | last | .tag_name // ""')
-          if [[ -n "$tag" ]]; then
-            gh release download "$tag" --pattern role-bindings.json --dir dist/previous
+          if [[ -n "$BASELINE_TAG" ]]; then
+            gh release download "$BASELINE_TAG" --pattern role-bindings.json --dir dist/previous
           fi
       - name: Publish changed skills and verify pinned role toolboxes
         env:
@@ -62,7 +124,7 @@ jobs:
           python -m tools.publish_foundry \
             --endpoint "$PROJECT_ENDPOINT" \
             --role-identities dist/role-identities.json \
-            --source-commit "$GITHUB_SHA" \
+            --source-commit "$SOURCE_COMMIT" \
             "${baseline[@]}" \
             --output dist/role-bindings.json --publish
       - name: Promote verified bindings as a versioned GitHub release
@@ -72,7 +134,7 @@ jobs:
           tag="foundry-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           python -c 'import json; from pathlib import Path; b=json.loads(Path("dist/role-bindings.json").read_text()); print("Source: "+b["release"]["source_commit"]); print("Uploaded skills: "+", ".join(b["release"]["uploaded_skills"])); print("Changed toolboxes: "+", ".join(b["release"]["changed_toolboxes"])); print("Verified: "+b["release"]["verification"])' > dist/notes.txt
           gh release create "$tag" dist/role-bindings.json \
-            --target "$GITHUB_SHA" --title "Foundry skills $GITHUB_RUN_NUMBER" \
+            --target "$SOURCE_COMMIT" --title "Foundry skills $GITHUB_RUN_NUMBER" \
             --notes-file dist/notes.txt --draft --latest=false
           gh release edit "$tag" --draft=false --latest=false
           {

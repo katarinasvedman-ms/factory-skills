@@ -14,7 +14,7 @@ description: Implement, inspect, review, or test C# and .NET changes using the r
 4. Read [the validation checklist](references/validation.md) before returning
    a .NET implementation proposal or review.
 5. Add focused behavioral regression tests using the existing test framework.
-   Run build/test commands only through approved execution tools.
+   Run build and test commands only through approved execution tools.
 6. When execution is not permitted, return a patch/proposal and mark validation
    NOT RUN. Never imply that source inspection proves a build succeeds.
 

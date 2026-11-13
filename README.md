@@ -44,8 +44,9 @@ factory-specific metadata into the portable format.
 
 Add role, technology, task, prerequisite, dependency, and runtime compatibility
 metadata to `catalog.json`. Add a positive task, expected observable outcomes,
-and an irrelevant negative task to `evaluations.json`. Increment the skill's
-semantic version whenever instructions or resources change.
+and an irrelevant negative task to `evaluations.json`. On the main-branch
+publishing path, CI increments the skill's patch version when instructions or
+resources change; an explicit higher version is preserved.
 
 Validation checks the schema, names, frontmatter, resources, directory coverage,
 dependencies, and evaluation fixture coverage. Unit tests check reproducibility
@@ -105,17 +106,16 @@ The `Publish Foundry skills` workflow runs automatically on a push/merge to
 directly: no PR or deployment-approval click is required. Optional pull requests
 still run validation only and cannot obtain the publishing identity.
 
-1. Tell Copilot the skill behavior you want to add or change. Copilot edits the
-   skill/resources, maintains `catalog.json` and `evaluations.json`, runs checks,
-   commits and pushes to `main`. The repository instructions in
-   `.github\copilot-instructions.md` define this authoring workflow.
-2. Existing skill content changes get a patch-version increment by default;
-   new skills start at `1.0.0`. Roles/tasks/technologies remain unchanged unless
-   applicability changes. Copilot maintains observable evaluation expectations
-   and an irrelevant negative task; CI does not infer them from prose.
-3. The push automatically starts CI, which checks content, version increments,
-   tests, lint, formatting and the reproducible source package. On success it
-   proceeds to publication without a human approval gate.
+1. Edit `SKILL.md` or supporting files manually and push to `main`, or ask Copilot
+   to make the change and handle git. Markdown-only pushes do not require a
+   manual catalog-version change.
+2. CI runs `python -m tools.skills version` against the previous promoted
+   binding's file hashes. It increments only changed skills' patch versions,
+   preserving any explicit higher version, and commits only generated
+   `catalog.json` updates as `github-actions[bot]`. Unchanged skills are not bumped.
+3. CI checks out that resulting commit for content/version validation, tests,
+   lint, formatting and reproducible packaging. On success it publishes against
+   that exact commit, not the original pre-bump push SHA, without an approval gate.
 4. The publisher uses GitHub OIDC, without a stored Azure secret. It uploads
    changed skill packages once and creates only affected `<role>-skills`
    Toolbox versions. Shared skills use the same pin across every consuming role.
@@ -127,6 +127,20 @@ still run validation only and cannot obtain the publishing identity.
    `role-bindings.json`, source commit, content hashes, worker identity IDs,
    and the uploaded-skill/changed-toolbox lists. The Actions summary links to it
    and provides the exact download command.
+
+The bot pushes with the repository's `GITHUB_TOKEN`, which does not trigger a
+second push workflow. There is no `[skip ci]` bypass: the current run validates
+the resulting commit. Stale runs stop, and bot pushes never force-overwrite a
+concurrent developer push. Pull before the next local change because CI may have
+added a catalog commit. A failed validation can leave that version commit in Git,
+but no new binding is promoted; retries do not repeatedly bump its version.
+
+Automatic versioning does not infer applicability or intended behavior.
+Roles/tasks/technologies and `evaluations.json` remain unchanged. For a new skill,
+provide a valid catalog entry and evaluation fixture (Copilot can author them);
+for changed applicability or expectations, edit them explicitly or ask Copilot.
+Optional PR validation still requires an appropriate version bump before merge;
+the automatic write-back is restricted to the main-branch publishing workflow.
 
 Unchanged versions are reused from the previous successful `foundry-*` release;
 they are still verified remotely. The single-role `--toolbox` command above is
