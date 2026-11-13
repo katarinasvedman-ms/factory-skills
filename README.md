@@ -162,7 +162,9 @@ The `foundry-publish` environment requires an approval and allows only the `main
 branch. Its Azure application has a federated credential with issuer
 `https://token.actions.githubusercontent.com`, audience
 `api://AzureADTokenExchange`, and subject
-`repo:katarinasvedman-ms/factory-skills:environment:foundry-publish`.
+`repo:katarinasvedman-ms@80513761/factory-skills@1455411481:environment:foundry-publish`.
+This is the actual ID-qualified subject observed in this repository's Actions
+token; do not assume the older name-only GitHub subject when configuring trust.
 It receives Foundry User only at the existing project's scope.
 
 Configure these environment variables, not secrets:
