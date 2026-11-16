@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-16",
+  "scope": "Single-task, operator-authenticated local native SDK content lifecycle demonstration",
+  "model": "claude-haiku-4.5",
+  "runtime": {
+    "sdk": "1.0.31",
+    "cli": "1.0.109"
+  },
+  "invariants": {
+    "request_sha256": "fcf20df112c6d3873aea3b96f6cd76807cc57ee82f501d829ee876e1540f82d6",
+    "policy_sha256": "cabeb35c2473e0bf54f9f03c2e235f530574748bd5c6fdfeba23fa0bec6af0cb",
+    "target_sha256": "e3405146596870e0dec43963404634c7c3a6044136a9d86e493e23e43d89c262",
+    "unchanged_target_and_provider_cleanup": true,
+    "agent_source_permissions_identities_and_deployment_not_modified_by_this_evaluation": true
+  },
+  "releases": {
+    "baseline": {
+      "tag": "foundry-43842056109-1",
+      "source_commit": "8486e807960b51b686d06765fd9afb1f54544d23",
+      "dotnet_catalog_version": "1.0.2",
+      "dotnet_service_version": "3",
+      "coder_toolbox_version": "3",
+      "materialized_dotnet_files": {
+        "SKILL.md": "a943fd254241c8a58c22e0d6cf23a588b3c3c294b5a036f507f878e401930d55",
+        "references/validation.md": "3f1160126a030fb14bbd9f0595a71155151fd86c4e2f9fadc0856ed981f2ced5"
+      }
+    },
+    "updated": {
+      "tag": "foundry-43845056107-1",
+      "source_commit": "89469a695d1e990689e31a739ad1d1d3f709eb01",
+      "dotnet_catalog_version": "1.0.3",
+      "dotnet_service_version": "4",
+      "coder_toolbox_version": "4",
+      "materialized_dotnet_files": {
+        "SKILL.md": "e3a05306d4f85e16329eb691ffa69abd4e26347dc38752f9f6caf9f6573eeb41",
+        "references/validation.md": "b205792bc8f8d12c16ad8337a877d8c32ebf0b68761f8cc65a26e1d738188d56"
+      }
+    }
+  },
+  "executions": {
+    "baseline_and_resume": {
+      "id": "ccc9a2b1-97be-4417-a5b3-9782bbac8794",
+      "release": "baseline",
+      "coder_result_sha256_before_and_after_resume": "26f299b89322d06a1d4ba8d842d93bba838e7dda366c9066a8cf27ddbabcfe83",
+      "coder_behavior_evidence_section": false,
+      "old_pins_and_materialized_hashes_preserved": true,
+      "unfinished_tester_activated": ["test-strategy"],
+      "resumed_tester_fetched_changed_dotnet_skill": false,
+      "native_skill_invoked_events": [
+        {
+          "id": "79bab7da-5feb-471f-b12d-f07fe982ce61",
+          "skill": "dotnet-development",
+          "source": "sdk"
+        },
+        {
+          "id": "7cec86af-0865-4710-b61e-98d42c463c09",
+          "skill": "test-strategy",
+          "source": "sdk"
+        }
+      ]
+    },
+    "updated": {
+      "id": "84529ad9-8af9-4422-b81c-bbab7477b5d5",
+      "release": "updated",
+      "coder_result_sha256": "484a2375d72c4263e22e898297ae90bb583625f46a884936343f24bde6065b68",
+      "coder_behavior_evidence_section": true,
+      "coder_examples": [
+        "NormalizeReference(null) -> ArgumentException; proposed, NOT RUN",
+        "NormalizeReference(\"  ord-001  \") -> \"ORD-001\"; inspection-based"
+      ],
+      "coder_compatibility_evidence": ["net8.0", "Nullable enable", "Orders.csproj"],
+      "tester_behavior_evidence_section": true,
+      "tester_full_compatibility_rubric_passed": false,
+      "native_skill_invoked_events": [
+        {
+          "id": "ae3e42c2-2547-4453-bf98-14766179f3e7",
+          "skill": "dotnet-development",
+          "source": "sdk"
+        },
+        {
+          "id": "51990c91-3253-4f78-811c-feb6f39fe5e5",
+          "skill": "test-strategy",
+          "source": "sdk"
+        },
+        {
+          "id": "42f6e3a5-ef95-43ee-89b4-800ff1367b76",
+          "skill": "dotnet-development",
+          "source": "sdk"
+        }
+      ]
+    },
+    "fresh_rollback": {
+      "id": "67ad5234-8545-432c-8e05-8f1735ffc8fb",
+      "release": "baseline",
+      "coder_result_sha256": "551c556eb2945c6fe11d3146739bc8751d1cc6d34e52d3de73d67ada6acdaf4e",
+      "coder_behavior_evidence_section": false,
+      "dotnet_hashes_match_baseline": true,
+      "native_skill_invoked_events": [
+        {
+          "id": "047874c3-977d-400f-97da-73cfc0f67020",
+          "skill": "dotnet-development",
+          "source": "sdk"
+        }
+      ]
+    }
+  },
+  "limitations_and_observations": [
+    "The baseline already proposed useful boundary cases; the changed output demonstrates uptake of reporting guidance, not improved reasoning or causal quality improvement.",
+    "This used the existing operator login and exact published coder Toolbox pins in the supported single-Toolbox provider mode, not the release's worker identity mappings or role-specific routing. Both logical roles used that same endpoint.",
+    "Two updated-discovery attempts failed closed before model execution because of Azure CLI token acquisition/deadline problems. Subsequent runs used harness-only in-memory reuse of the same valid operator token with refresh; production code and deadlines were unchanged.",
+    "Resume preserved old pins, coder output and materialized hashes, but its unfinished tester activated only test-strategy. Fresh rollback, not resume, demonstrates retrieval of old .NET bytes after publication.",
+    "The first resume summary asserted that every role activated .NET. The runtime succeeded; evidence extraction was corrected to record the actual permitted tester activation without rerunning that role.",
+    "Updated tester omitted Orders.csproj from its compatibility section and made unsupported xUnit/test-project and HTTP 400 assumptions. The fixture establishes neither a test framework nor an exception-to-400 mapping.",
+    "All application build/test validation remained NOT RUN. Native events and this evidence summary are application-retained, not signed attestations.",
+    "This does not reverify deployed ACA adoption, role isolation, negative-task behavior, broad quality improvement or long-session reliability."
+  ]
+}

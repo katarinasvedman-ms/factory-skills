@@ -12,13 +12,14 @@ The SDK supplies skill loading/activation and the experimental `SkillProvider`
 callback interface. Our factory supplies the Foundry adapter, not a replacement
 skill engine. Adding a generic MCP server to the SDK is not that adapter.
 
-Two independent version milestones must not be conflated:
+Independent evidence milestones must not be conflated:
 
 | Evidence | Binding used or published | What it proves |
 | --- | --- | --- |
 | Local bridge/provider comparison, 2026-11-12 | Original `factory-skills` v1 | Both consumption paths, native activation and proposal/resource behavior |
 | CI publication, 2026-11-13 | Five role Toolboxes v3 | Automatic versioning, exact package/reference integrity and promoted binding |
 | Live Azure coder, 2026-11-13 | `coder-skills` v1 | Managed-identity Foundry access, native activation and proposal generation in ACA |
+| Local lifecycle demonstration, 2026-11-16 | Published coder Toolbox v3 and v4 pins | Changed reporting behavior, old execution pin/output preservation and fresh rollback; operator-authenticated, not Azure adoption |
 
 The Azure execution did not use the latest CI binding. Publishing a release does
 not update existing executions or automatically demonstrate its model behavior.
@@ -271,3 +272,70 @@ long-session availability/token-refresh/latency testing, evaluation after
 adopting newer release bindings, and production least-privilege/review/audit
 policy. A passing distribution pipeline proves bytes and references, not model
 quality, compilation or production readiness.
+
+## 9. Controlled skill lifecycle demonstration (2026-11-16)
+
+The first authoring-to-behavior proof used one unchanged orders-fixture request,
+policy, target, model (`claude-haiku-4.5`) and SDK/CLI pair. A baseline coder ran
+before the edit; its tester role was left unfinished. The .NET skill and its
+checklist then gained an explicit `Behavior evidence` requirement: identify the
+method/source, give concrete rejected and preserved inputs/outcomes, and label
+examples as proposed/inspection-based unless actually executed. Existing
+compatibility requirements and the irrelevant negative evaluation task remain.
+
+CI advanced catalog version `1.0.2` to `1.0.3`, skill service version `3` to `4`,
+and the five affected role Toolboxes from `3` to `4`. Other skill pins, role
+memberships and identity mappings were unchanged. The new requirement was not
+added to the task prompt.
+
+| Executed step | Native activation / content | Observed result |
+| --- | --- | --- |
+| Baseline coder before publication | .NET service v3, `source: sdk` | Compatibility evidence and useful proposed boundary cases; no `Behavior evidence` section |
+| New coder after publication | .NET service v4, `source: sdk` | New section gives `NormalizeReference(null)` -> `ArgumentException` (proposed, NOT RUN), and `"  ord-001  "` -> `"ORD-001"` (inspection-based), with method/source and compatibility evidence |
+| New tester | test-strategy and .NET v4, `source: sdk` | Added behavior section, but omitted `Orders.csproj` from compatibility evidence and retained unsupported framework/HTTP assumptions |
+| Resume pre-publication execution | Old pins preserved; unfinished tester activated test-strategy | Completed coder result hash and old materialized hashes unchanged; no new .NET activation in this resumed role |
+| Fresh rollback execution after publication | .NET service v3, `source: sdk`; file hashes equal baseline | Old content remains retrievable; new behavior-section requirement absent from coder output |
+
+This establishes observed uptake of published reporting guidance, not improved
+reasoning: the baseline already contained useful examples. It does not establish
+all-role compliance, repeatability or broad model-quality improvement.
+All materialized skill hashes matched their selected release asset; target
+snapshots stayed unchanged, provider temporary files were removed, and
+application validation remained NOT RUN.
+
+This was a separate **operator-authenticated content evaluation** using exact
+published coder Toolbox pins in the supported single-Toolbox provider mode.
+Both logical roles used that endpoint; it did not use the release's worker
+identity mappings or reverify role-specific endpoint routing. No agent source,
+permissions, identities, Azure resources or deployment configuration were changed
+by this evaluation.
+
+Two v4 discovery attempts failed closed before a model session because local
+Azure CLI token acquisition exceeded its timeout/the provider deadline.
+Subsequent runs used a session-harness-only cache of the same valid operator
+token, with refresh; production authentication code and deadlines were unchanged.
+This is an operational issue for the runtime session to investigate, not proof
+that default credential latency is solved.
+
+The resume runtime succeeded; its first evidence extractor incorrectly required
+every role to activate .NET. Extraction was corrected to record the tester's
+actual permitted test-strategy activation, without rerunning the role. Resume
+therefore proves preserved pins/results; the separate rollback supplies the
+post-publication old-.NET fetch evidence.
+
+The tester's omitted project path and assumptions about xUnit/test-project names
+and HTTP 400 are recorded, not waived. `Orders.csproj` has no test-framework
+dependency, and `Program.cs` has no explicit exception-to-400 mapping. This
+demonstration is not evidence that the full output rubric passed for tester.
+Negative-task activation and longer-session reliability were not evaluated here.
+
+Evidence and reproducibility inputs:
+
+- [Publication run](https://github.com/katarinasvedman-ms/factory-skills/actions/runs/43845056107)
+- [Exact behavior-tested release](https://github.com/katarinasvedman-ms/factory-skills/releases/tag/foundry-43845056107-1)
+- [Sanitized evidence summary](evidence\skill-lifecycle-2026-11-16.json): execution/event IDs, content/result hashes and explicit limitations.
+- Local session artifacts under `files\skill-lifecycle`: preregistered `plan.json`,
+  both release assets, `run_lifecycle.py`, `verify_lifecycle.py`, verification
+  summaries and execution folders containing manifests, native events, provider
+  metrics, resource-read events and proposals. These are retained locally,
+  not distributed as credentials or a new factory runtime.

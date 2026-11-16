@@ -15,19 +15,22 @@ permissions. Supporting resources are loaded only when relevant.
 ## Current status (2026-11-16)
 
 This is a working, bounded PoC, not an end-to-end autonomous factory.
-The latest recorded demonstrations completed on 2026-11-13:
+The latest recorded demonstrations completed on 2026-11-16:
 
 | Area | Verified result | Boundary |
 | --- | --- | --- |
 | Authoring and publication | A skill-only edit triggered an automatic catalog patch bump, validation, OIDC publication and a versioned binding release | CI does not infer applicability or evaluation expectations; publication is not model-behavior evaluation |
-| Role layout | Five role Toolboxes in the existing project; the latest recorded release pins all five to version `3` | A new execution must explicitly adopt its binding; defaults and existing runs do not change |
+| Role layout | Five role Toolboxes in the existing project; the behavior-tested release pins all five to version `4` | A new execution must explicitly adopt its binding; defaults and existing runs do not change |
 | SDK consumption | Local coder/tester sessions used the experimental SDK provider with activation-time retrieval and no approved local mirror | Bridge remains default; supporting archives are materialized per activated skill, not per subsequent file read |
+| Skill lifecycle | .NET `1.0.3` guidance appeared in new coder output; resume preserved old pins/output; fresh rollback fetched the old bytes | One local operator-authenticated scenario, not general quality improvement; tester output still had grounding/compliance gaps |
 | Azure execution | A live coder-only ACA Job used managed identity for Foundry, activated .NET and test-strategy, and produced an approval-required proposal | That execution used `coder-skills` version `1`, not the latest CI binding; application builds/tests were NOT RUN |
 | Authorization | Entra authentication and provider allow-lists worked | Project-level Foundry User allows cross-Toolbox access; Toolbox-level authorization isolation was not established |
 
-The [successful publication run](https://github.com/katarinasvedman-ms/factory-skills/actions/runs/43410580436)
-and [versioned binding release](https://github.com/katarinasvedman-ms/factory-skills/releases/tag/foundry-43410580436-1)
-record the latest demonstrated publisher result. The factory's
+The [successful publication run](https://github.com/katarinasvedman-ms/factory-skills/actions/runs/43845056107)
+and [behavior-tested binding release](https://github.com/katarinasvedman-ms/factory-skills/releases/tag/foundry-43845056107-1)
+record the .NET `1.0.3` publication used in the
+[lifecycle demonstration](docs\implementation-walkthrough.md#9-controlled-skill-lifecycle-demonstration-2026-11-16).
+The factory's
 [`README`](https://github.com/katarinasvedman-ms/ai-factory#container-apps-jobs)
 describes the separate Azure worker demonstration.
 
@@ -38,7 +41,7 @@ Foundry connector or a demonstrated Foundry Tool Search ranking integration.
 
 Remaining work includes an isolated application build/test executor,
 ticket/GitHub orchestration and PR delivery, multi-role Azure evaluation,
-explicit adoption/evaluation of newer bindings, and production hardening.
+explicit Azure adoption/evaluation of newer bindings, and production hardening.
 The historical brief, handoff and original plan under `docs` describe intent;
 this status and the walkthrough describe implemented behavior.
 

@@ -26,10 +26,10 @@ This is partial delivery of the original broader acceptance criteria:
 | 4: five roles and ten skills | Configuration and content exist; evaluation fixtures are not proof that every role/skill has passed a live behavioral evaluation |
 | 5: ACA execution | One coder-only live job verified; all-role/concurrent Azure workflow remains unverified |
 | 6: Toolbox | Both bridge and experimental provider verified; provider remains opt-in |
-| Subsequent publishing work | Main pushes drive automatic patch bumps, validation and OIDC publication; new runs explicitly adopt a versioned binding |
+| Subsequent publishing work | Main pushes drive automatic patch bumps, validation and OIDC publication; a local v3/v4 lifecycle comparison demonstrated reporting-guidance uptake and fresh rollback, with tester quality limits recorded |
 
-The Azure coder run used Toolbox v1; the latest recorded CI release pins role
-Toolboxes to v3. Publication does not prove that the deployed worker adopted or
+The Azure coder run used Toolbox v1; the behavior-tested CI release pins role
+Toolboxes to v4. Publication does not prove that the deployed worker adopted or
 evaluated that newer binding. Project grants allow cross-Toolbox access:
 role filtering works in our provider, not as verified Toolbox-scoped RBAC.
 
