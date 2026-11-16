@@ -12,6 +12,36 @@ code review, test strategy, legacy analysis, .NET, Java, Python, API development
 and SQL Server database changes. Skills contain useful procedures, not tool
 permissions. Supporting resources are loaded only when relevant.
 
+## Current status (2026-11-16)
+
+This is a working, bounded PoC, not an end-to-end autonomous factory.
+The latest recorded demonstrations completed on 2026-11-13:
+
+| Area | Verified result | Boundary |
+| --- | --- | --- |
+| Authoring and publication | A skill-only edit triggered an automatic catalog patch bump, validation, OIDC publication and a versioned binding release | CI does not infer applicability or evaluation expectations; publication is not model-behavior evaluation |
+| Role layout | Five role Toolboxes in the existing project; the latest recorded release pins all five to version `3` | A new execution must explicitly adopt its binding; defaults and existing runs do not change |
+| SDK consumption | Local coder/tester sessions used the experimental SDK provider with activation-time retrieval and no approved local mirror | Bridge remains default; supporting archives are materialized per activated skill, not per subsequent file read |
+| Azure execution | A live coder-only ACA Job used managed identity for Foundry, activated .NET and test-strategy, and produced an approval-required proposal | That execution used `coder-skills` version `1`, not the latest CI binding; application builds/tests were NOT RUN |
+| Authorization | Entra authentication and provider allow-lists worked | Project-level Foundry User allows cross-Toolbox access; Toolbox-level authorization isolation was not established |
+
+The [successful publication run](https://github.com/katarinasvedman-ms/factory-skills/actions/runs/43410580436)
+and [versioned binding release](https://github.com/katarinasvedman-ms/factory-skills/releases/tag/foundry-43410580436-1)
+record the latest demonstrated publisher result. The factory's
+[`README`](https://github.com/katarinasvedman-ms/ai-factory#container-apps-jobs)
+describes the separate Azure worker demonstration.
+
+The SDK supplies skill selection/activation and loading through `SkillProvider`
+callbacks; our factory adapter supplies Foundry discovery/retrieval, authentication,
+pinning, filtering and temporary-file handling. This is not a built-in SDK
+Foundry connector or a demonstrated Foundry Tool Search ranking integration.
+
+Remaining work includes an isolated application build/test executor,
+ticket/GitHub orchestration and PR delivery, multi-role Azure evaluation,
+explicit adoption/evaluation of newer bindings, and production hardening.
+The historical brief, handoff and original plan under `docs` describe intent;
+this status and the walkthrough describe implemented behavior.
+
 ## Local development
 
 Requires Python 3.13 and pip 25.1 or later. From this repository in PowerShell:
@@ -62,11 +92,13 @@ Never put credentials, automatic script execution, or approval bypasses in skill
 ## GitHub releases
 
 The validation workflow checks pull requests and `main`. PRs require a version
-increment for changed skill files. A reviewed `v*` tag builds a ZIP, writes its
-SHA-256, and publishes a GitHub release. Protect `main`, tags, and the
-`skills-release` environment; require CODEOWNERS review. These settings must
-be enabled by a repository administrator; adding workflow files does not enable
-branch protection.
+increment for changed skill files. The separate `v*` tag workflow builds a ZIP,
+writes its SHA-256, and publishes a GitHub release; a tag alone does not establish
+human review. Production policy should protect `main`, tags and release
+environments and require appropriate ownership/review. Those protections are
+administrator settings, not enabled by workflow files. The demo's automatic
+Foundry publishing path below deliberately allows direct main pushes without a
+PR or deployment approval.
 
 The factory's GitHub resolver retrieves the source tree at an operator-approved
 full commit SHA, not `main`, a floating tag, or an unbound release asset. Release
@@ -173,8 +205,10 @@ Keep the downloaded file pinned for that execution; to roll back, prepare a new
 execution with the previous release's binding. New skills must also be explicitly
 permitted in the factory policy. Publisher credentials are separate from worker
 credentials and Copilot model authentication; CI does not distribute worker
-private keys or run model sessions. Yesterday's temporary local-test keys were
-removed, so local identity-isolated model runs require new worker credentials.
+private keys or run model sessions. The role-isolation experiment's temporary
+local-test keys were removed, so repeating those local sessions requires fresh
+worker credentials. The separate Azure coder demonstration used managed identity
+for Foundry; Copilot model authentication is a separate credential.
 
 ### GitHub environment configuration
 
@@ -195,11 +229,14 @@ Configure these environment variables, not secrets:
 The last is a JSON object mapping each existing role to `type`, `tenant_id`,
 `client_id` and `principal_id` of its worker identity. Protect `main` through
 repository rules as appropriate; workflow files alone do not enable protection.
-Separate toolboxes are not an authorization boundary; confirm actual Foundry
-RBAC scope. The publisher's project-level Foundry User grant is broader than
+The executed RBAC experiment did not establish Toolbox authorization isolation:
+a scoped assignment was accepted, but own-200/cross-403 was never observed.
+Project-granted identities could access other role Toolboxes. Provider endpoint
+selection and `permitted_skills` are application filtering, not Azure-enforced
+role separation. The publisher's project-level Foundry User grant is broader than
 skill-read access and is not assigned to a subscription or resource group.
 
-## PoC state
+## Initial publication (historical)
 
 On 2026-11-12, ten skills and the `factory-skills` toolbox version `1` were
 published to the existing, explicitly authorized `factory-skills` Foundry
@@ -207,6 +244,7 @@ project. The generated binding is retained in
 `.artifacts\foundry-binding.json`, not embedded in agent code. Real resource
 discovery, pinned package retrieval, and SDK consumption were verified.
 
-The skills repository's initial push and OIDC pipeline activation were explicitly
-authorized for the demo. This does not authorize committing or pushing the
-sibling factory repository.
+Both repositories have since been published and their remote checks have run.
+Authoring permissions here do not grant the factory workers commit, push or
+deployment tools, or authorize cross-repository delivery by a skills-authoring
+assistant.

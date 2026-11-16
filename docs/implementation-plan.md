@@ -4,15 +4,39 @@
 
 The user selected Python with Copilot SDK and both GitHub and Foundry
 distribution. The implementation uses SDK 1.0.31 / SDK-managed CLI 1.0.109 and
-native file-based consumption for both transports. These choices supersede
-the TypeScript/GitHub-first proposals below.
+native file-based consumption for local/GitHub/default Foundry bridge mode.
+Experimental Foundry provider mode adds mirror-free, activation-time retrieval
+through our implementation of the SDK's provider callbacks. These choices
+supersede the TypeScript/GitHub-first proposals below.
 
-The local skills and factory implementations are now in their corresponding
-worktrees. Live SDK consumption and the existing, user-authorized Foundry
-project/toolbox path have been exercised. See both repositories' READMEs for
-commands, retained evidence, and limitations; no commits/pushes or ACA
-deployment have been performed. Container validation is blocked by its package
-download TLS/network configuration.
+### Delivery checkpoint (2026-11-16)
+
+Both repositories are published and remote checks have passed. Live local
+coder/tester consumption, five role Toolboxes, distinct local role identities,
+and automatic skill versioning/publication have been exercised in the existing
+Foundry project. A coder-only ACA Job completed a live evaluation on 2026-11-13
+using managed identity for Foundry. ACR Tasks built the image successfully;
+the earlier local Docker TLS problem did not block that deployment.
+
+This is partial delivery of the original broader acceptance criteria:
+
+| Original milestone | Current evidence and remaining boundary |
+| --- | --- |
+| 0-3: contract, resolution, local vertical slice | Implemented with native coder/tester activation, resource reads and approval-required proposals; no application command runner |
+| 4: five roles and ten skills | Configuration and content exist; evaluation fixtures are not proof that every role/skill has passed a live behavioral evaluation |
+| 5: ACA execution | One coder-only live job verified; all-role/concurrent Azure workflow remains unverified |
+| 6: Toolbox | Both bridge and experimental provider verified; provider remains opt-in |
+| Subsequent publishing work | Main pushes drive automatic patch bumps, validation and OIDC publication; new runs explicitly adopt a versioned binding |
+
+The Azure coder run used Toolbox v1; the latest recorded CI release pins role
+Toolboxes to v3. Publication does not prove that the deployed worker adopted or
+evaluated that newer binding. Project grants allow cross-Toolbox access:
+role filtering works in our provider, not as verified Toolbox-scoped RBAC.
+
+See the [current walkthrough](implementation-walkthrough.md) and both repository
+READMEs for evidence and commands. The remainder is the **original plan**, kept
+for traceability: proposals and starting conditions are not current status or
+claims that all exit criteria have passed.
 
 ## Starting point and scope
 

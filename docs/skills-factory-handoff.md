@@ -1,8 +1,18 @@
 # Shared development skills for an agent factory
 
-Handoff from the discussion on 2026-11-12. This is a separate initiative from
-the Enterprise AI Portal demo. No implementation or deployment has been done
-for this initiative.
+Historical handoff from the discussion on 2026-11-12, before implementation.
+This is a separate initiative from the Enterprise AI Portal demo. The options,
+unknowns and suggested next steps below preserve that discussion, not current
+status.
+
+As of 2026-11-16, Python Copilot SDK bridge/provider consumption, role Toolboxes,
+automated Foundry publication and one live coder-only ACA Job have been
+demonstrated. The provider adapter described below is implemented and verified;
+bridge remains the default. Toolbox-level authorization isolation was not
+established. Application builds/tests and ticket-to-PR integration are not
+implemented. See the [current status](..\README.md) and
+[current walkthrough](implementation-walkthrough.md) before using this handoff
+as a description of the delivered system.
 
 ## Goal
 

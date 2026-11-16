@@ -1,5 +1,13 @@
 # Implementation Brief: Dynamic Skills Platform for an Agentic Software Factory
 
+> Historical requirements, supplied before implementation. This brief describes
+> the target factory, not completed capabilities. Actual repository names are
+> `ai-factory` and `factory-skills`. See the [current status](..\README.md)
+> and [implementation walkthrough](implementation-walkthrough.md) for verified
+> publishing, provider consumption and the coder-only Azure demonstration.
+> ServiceNow integration, autonomous application changes/tests and PR delivery
+> remain targets; the worker produces approval-required proposals.
+
 ## 1. Context
 
 We are building an autonomous software factory for Electrolux, running in Azure Container Apps Jobs.
