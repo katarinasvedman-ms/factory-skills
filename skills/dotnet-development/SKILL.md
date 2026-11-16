@@ -18,6 +18,7 @@ description: Implement, inspect, review, or test C# and .NET changes using the r
 6. When execution is not permitted, return a patch/proposal and mark validation
    NOT RUN. Never imply that source inspection proves a build succeeds.
 
-Before submitting your final response, include the compatibility evidence
-required by the validation checklist. Reading the checklist is not sufficient:
-the observed project settings must appear in the final response.
+Before submitting your final response, include the compatibility and behavior
+evidence required by the validation checklist. Reading the checklist is not
+sufficient: the observed project settings and concrete input/outcome examples
+must appear in the final response.
