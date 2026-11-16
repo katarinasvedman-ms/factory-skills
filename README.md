@@ -1,53 +1,52 @@
 # Factory skills
 
-Portable development skills for `katarinasvedman-ms/ai-factory`. This repository
-owns skill content and releases; the factory owns orchestration, selection,
-runtime integration, and authorization.
+Portable development skills with independent authoring, validation and
+versioned publication. Skills describe useful procedures; they do not grant
+tools, credentials or permission to execute commands.
 
-See [the implementation walkthrough](docs\implementation-walkthrough.md) for
-actual discovery-to-activation code paths and retained Foundry execution evidence.
+This repository owns content, catalog metadata, evaluation expectations and
+releases. Consumers own task selection, runtime integration, authorization and
+execution evidence. The reference consumer is
+[`ai-factory`](https://github.com/katarinasvedman-ms/ai-factory); the skill format
+is not specific to that runtime or a particular customer.
 
-The initial catalog contains architecture analysis, implementation planning,
-code review, test strategy, legacy analysis, .NET, Java, Python, API development,
-and SQL Server database changes. Skills contain useful procedures, not tool
-permissions. Supporting resources are loaded only when relevant.
+## Status and scope
 
-## Current status (2026-11-16)
+**The bounded skill-lifecycle PoC is demonstrated:** author a change, publish it
+through CI, load the pinned revision through native SDK activation, observe the
+changed reporting behavior, preserve existing execution pins, and roll back.
+This does not prove general quality improvement or production readiness.
 
-This is a working, bounded PoC, not an end-to-end autonomous factory.
-The latest recorded demonstrations completed on 2026-11-16:
+The reference consumer keeps the Foundry bridge as default and its experimental
+on-demand provider opt-in. The SDK supplies native skill selection/loading;
+our adapter connects it to Foundry. Provider allow-lists are application
+filtering, not verified Toolbox-scoped Azure authorization.
 
-| Area | Verified result | Boundary |
+The remaining proof is focused, not another broad lifecycle spike:
+
+| Before claiming | Required evidence | Owner |
 | --- | --- | --- |
-| Authoring and publication | A skill-only edit triggered an automatic catalog patch bump, validation, OIDC publication and a versioned binding release | CI does not infer applicability or evaluation expectations; publication is not model-behavior evaluation |
-| Role layout | Five role Toolboxes in the existing project; the behavior-tested release pins all five to version `4` | A new execution must explicitly adopt its binding; defaults and existing runs do not change |
-| SDK consumption | Local coder/tester sessions used the experimental SDK provider with activation-time retrieval and no approved local mirror | Bridge remains default; supporting archives are materialized per activated skill, not per subsequent file read |
-| Skill lifecycle | .NET `1.0.3` guidance appeared in new coder output; resume preserved old pins/output; fresh rollback fetched the old bytes | One local operator-authenticated scenario, not general quality improvement; tester output still had grounding/compliance gaps |
-| Azure execution | A live coder-only ACA Job used managed identity for Foundry, activated .NET and test-strategy, and produced an approval-required proposal | That execution used `coder-skills` version `1`, not the latest CI binding; application builds/tests were NOT RUN |
-| Authorization | Entra authentication and provider allow-lists worked | Project-level Foundry User allows cross-Toolbox access; Toolbox-level authorization isolation was not established |
+| A deployed worker adopted the tested revision | A new Azure execution using the selected release binding | Consumer/runtime |
+| Skills reliably improve results | Repeated relevant/irrelevant-task evaluations and grounded output checks | Skills and consumer |
+| Provider is production-ready | Credential-latency remediation and long-session, refresh, interruption and availability tests | Consumer/runtime |
 
-The [successful publication run](https://github.com/katarinasvedman-ms/factory-skills/actions/runs/43845056107)
-and [behavior-tested binding release](https://github.com/katarinasvedman-ms/factory-skills/releases/tag/foundry-43845056107-1)
-record the .NET `1.0.3` publication used in the
-[lifecycle demonstration](docs\implementation-walkthrough.md#9-controlled-skill-lifecycle-demonstration-2026-11-16).
-The factory's
-[`README`](https://github.com/katarinasvedman-ms/ai-factory#container-apps-jobs)
-describes the separate Azure worker demonstration.
+See [verification and limitations](docs\verification.md) for dated results,
+exact release references, quality gaps and the distinction between local
+evaluation and Azure adoption. Application builds/tests were not executed by
+the demonstrated workers.
 
-The SDK supplies skill selection/activation and loading through `SkillProvider`
-callbacks; our factory adapter supplies Foundry discovery/retrieval, authentication,
-pinning, filtering and temporary-file handling. This is not a built-in SDK
-Foundry connector or a demonstrated Foundry Tool Search ranking integration.
+## Documentation
 
-Remaining work includes an isolated application build/test executor,
-ticket/GitHub orchestration and PR delivery, multi-role Azure evaluation,
-explicit Azure adoption/evaluation of newer bindings, and production hardening.
-The historical brief, handoff and original plan under `docs` describe intent;
-this status and the walkthrough describe implemented behavior.
+- [Scope and design principles](docs\brief.md)
+- [Authoring-to-activation walkthrough](docs\implementation-walkthrough.md)
+- [Ownership and consumer handoff](docs\skills-factory-handoff.md)
+- [Focused remaining work](docs\implementation-plan.md)
+- [Verification record](docs\verification.md)
 
 ## Local development
 
-Requires Python 3.13 and pip 25.1 or later. From this repository in PowerShell:
+The documented development environment uses Python 3.13 and pip 25.1 or later.
+From the repository in PowerShell:
 
 ```powershell
 python -m venv .venv
@@ -56,198 +55,126 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m ruff check tools tests
 .\.venv\Scripts\python.exe -m ruff format --check tools tests
-.\.venv\Scripts\python.exe -m tools.skills build --output .artifacts\release-demo
+.\.venv\Scripts\python.exe -m tools.skills build --output .artifacts\release
 ```
 
-Choose a new output directory for each build. The builder produces a directory
-and deterministic ZIP containing `catalog.json`, `release.json`, and skills.
-`release.json` hashes the catalog and every file in every skill, including
-references. These digests establish integrity only relative to a trusted source;
-they are not signatures or authorization.
+Choose a new build output directory each time. The deterministic directory/ZIP
+includes the catalog, skills and a `release.json` of file hashes. Hashes establish
+integrity relative to trusted metadata; they are not signatures or authorization.
+Keep `requirements.lock` aligned with deliberate dependency changes.
 
-`requirements.lock` contains resolved dependency constraints. Keep it aligned
-with `pyproject.toml`; deliberately review SDK/API dependencies on updates.
+## Authoring
 
-## Authoring and evaluation
+Each `skills\<id>\SKILL.md` uses Agent Skills frontmatter (`name`, `description`)
+and procedural Markdown. Put optional resources beneath that skill folder and
+link them relatively. Keep application-specific commands and conventions in
+application context, not shared skills.
 
-Each `skills\<id>\SKILL.md` uses the open Agent Skills format: unquoted YAML
-`name` and `description`, followed by procedural Markdown. Put optional
-resources under that skill's folder and use relative links. Do not put
-factory-specific metadata into the portable format.
+`catalog.json` separately defines semantic version, roles, tasks, technologies,
+prerequisites, dependencies and compatibility. `evaluations.json` records a
+realistic positive task, observable expectations and an irrelevant negative
+task. Sample applications in those fixtures are test cases, not customer
+configuration.
 
-Add role, technology, task, prerequisite, dependency, and runtime compatibility
-metadata to `catalog.json`. Add a positive task, expected observable outcomes,
-and an irrelevant negative task to `evaluations.json`. On the main-branch
-publishing path, CI increments the skill's patch version when instructions or
-resources change; an explicit higher version is preserved.
+Manual edits and direct main pushes are supported for this PoC. On the main
+publication path, CI supplies missing patch increments for changed skill files;
+an explicit higher version is preserved and downgrades are rejected. New skills
+still need valid catalog and evaluation entries. CI does not infer applicability
+or rewrite intended evaluation outcomes.
 
-Validation checks the schema, names, frontmatter, resources, directory coverage,
-dependencies, and evaluation fixture coverage. Unit tests check reproducibility
-and failures; they do not prove model behavior. The factory's opt-in live
-evaluation verifies native SDK activation, a supporting-resource read, concrete
-.NET compatibility evidence, proposal creation, and non-activation of available
-but irrelevant API/database skills. The other behavioral rubrics remain inputs
-for expanded live evaluation, not claims of successful evaluation.
+Validation checks structure, metadata, resources and evaluation coverage.
+Unit tests and distribution checks do not prove model behavior. That requires
+actual runtime activation evidence and grounded outputs.
 
-Target-specific commands and conventions belong in application context.
-Never put credentials, automatic script execution, or approval bypasses in skills.
+## Automated Foundry publication
 
-## GitHub releases
+`Publish Foundry skills` runs on a main push or manual main dispatch:
 
-The validation workflow checks pull requests and `main`. PRs require a version
-increment for changed skill files. The separate `v*` tag workflow builds a ZIP,
-writes its SHA-256, and publishes a GitHub release; a tag alone does not establish
-human review. Production policy should protect `main`, tags and release
-environments and require appropriate ownership/review. Those protections are
-administrator settings, not enabled by workflow files. The demo's automatic
-Foundry publishing path below deliberately allows direct main pushes without a
-PR or deployment approval.
+1. Compare skill hashes with the last promoted `foundry-*` binding. Commit
+   generated catalog patch increments as `github-actions[bot]` when needed.
+2. Validate, test, lint, format and package the resulting commit.
+3. Authenticate using GitHub OIDC. Upload changed skills once, reuse unchanged
+   service pins and create only affected role Toolbox versions.
+4. Download and verify pinned packages and exact Toolbox references.
+5. Promote a versioned GitHub release containing `role-bindings.json`, source
+   provenance, content hashes and role identity mappings.
 
-The factory's GitHub resolver retrieves the source tree at an operator-approved
-full commit SHA, not `main`, a floating tag, or an unbound release asset. Release
-ZIPs are useful for mirroring/audit. Resolve an approved tag to its commit
-outside the worker before configuring a new execution.
+Shared skills retain the same pin across consuming roles. Catalog semantic
+versions, Foundry skill service versions and Toolbox versions are distinct.
+The bot push does not recursively trigger another workflow; the current run
+validates the resulting commit. Stale runs stop and pushes are never forced.
+Pull before subsequent edits if CI added a catalog commit.
 
-## Foundry publication
+The demo has no required PR or deployment-approval click. This is not a
+production review policy. A Toolbox version records composition, not inherently
+human approval. Optional PR checks require appropriate version increments;
+automatic catalog write-back is limited to the main publishing path.
 
-An alternative distribution path uses an existing Foundry project. The explicit
-publication command creates immutable skill versions, then a toolbox version
-with explicit version references. It preserves all supporting files. It does
-not provision a project, create credentials, or promote an existing toolbox's
-default version. A brand-new toolbox's first version becomes its default as
-part of the service's normal behavior.
+Publication jobs are serialized. Mutating POST operations are not automatically
+retried, and old versions are not deleted. A failure can leave unreferenced
+immutable versions; inspect the run before retrying. The previous promoted
+binding remains usable. A catalog commit can exist even if later checks fail.
 
-Install the optional publisher dependencies and use an existing authorized
-Azure login or workload identity:
+### Environment configuration
+
+The `foundry-publish` GitHub environment is restricted to main. Configure these
+environment variables, not secrets:
+
+`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
+`FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_ROLE_IDENTITIES`.
+
+The identity map supplies `type`, `tenant_id`, `client_id` and `principal_id` per
+role. Provision identities and project grants separately; ordinary skill
+authoring must not change worker permissions, identities or deployment resources.
+Project-level Foundry User is broader than skill-read access.
+
+Federated trust uses issuer `https://token.actions.githubusercontent.com` and
+audience `api://AzureADTokenExchange`. Match the actual Actions token subject;
+the observed form includes owner and repository IDs:
+
+```text
+repo:<OWNER>@<OWNER_ID>/<REPOSITORY>@<REPOSITORY_ID>:environment:<ENVIRONMENT>
+```
+
+Do not assume the older name-only subject. Production branch, tag, environment
+and ownership protections must be configured by administrators; workflow files
+alone do not enable them.
+
+### Explicit publication and source releases
+
+The original all-catalog publisher remains available for an authorized,
+existing Foundry project:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -c requirements.lock -e ".[foundry]"
 .\.venv\Scripts\python.exe -m tools.publish_foundry `
   --endpoint "https://YOUR-ACCOUNT.services.ai.azure.com/api/projects/YOUR-PROJECT" `
-  --toolbox factory-skills --output .artifacts\foundry-binding.json --publish
+  --toolbox YOUR-TOOLBOX --output .artifacts\binding.json --publish
 ```
 
-Do not pass credentials on the command line. In environments where a working
-Azure CLI login should be used explicitly, set
+This is not the role-aware CI path, which uses `--role-identities`,
+`--source-commit` and a prior `--baseline`. Do not use a consumer's one-off
+identity/Toolbox bootstrap script for subsequent releases.
+
+Use an existing authorized credential; never put tokens on the command line.
+For explicit local Azure CLI selection, set
 `$env:AZURE_TOKEN_CREDENTIALS = 'AzureCliCredential'` for that process.
-The publisher does not retry POST operations automatically: if interrupted,
-some immutable versions may already exist. Inspect those versions before
-rerunning; do not delete existing skills to retry a release.
+The publisher does not provision projects or change existing Toolbox defaults.
+A new Toolbox's first version may become its default through service behavior.
 
-### GitHub-to-Foundry release flow
+The separate `v*` tag workflow builds a source ZIP and SHA-256 release.
+Consumers using GitHub source must resolve an approved full commit SHA rather
+than trust a floating branch, tag or unbound asset.
 
-The `Publish Foundry skills` workflow runs automatically on a push/merge to
-`main`, or manually on `main` for recovery. For this PoC, Copilot handles git
-directly: no PR or deployment-approval click is required. Optional pull requests
-still run validation only and cannot obtain the publishing identity.
+## Consumer adoption and rollback
 
-1. Edit `SKILL.md` or supporting files manually and push to `main`, or ask Copilot
-   to make the change and handle git. Markdown-only pushes do not require a
-   manual catalog-version change.
-2. CI runs `python -m tools.skills version` against the previous promoted
-   binding's file hashes. It increments only changed skills' patch versions,
-   preserving any explicit higher version, and commits only generated
-   `catalog.json` updates as `github-actions[bot]`. Unchanged skills are not bumped.
-3. CI checks out that resulting commit for content/version validation, tests,
-   lint, formatting and reproducible packaging. On success it publishes against
-   that exact commit, not the original pre-bump push SHA, without an approval gate.
-4. The publisher uses GitHub OIDC, without a stored Azure secret. It uploads
-   changed skill packages once and creates only affected `<role>-skills`
-   Toolbox versions. Shared skills use the same pin across every consuming role.
-   The first release uploads all skills to establish the automated baseline.
-5. Before promotion, CI downloads every pinned skill package and checks all
-   file hashes against the checkout, then checks each role Toolbox's exact
-   references and absence of tools. A failure prevents release promotion.
-6. CI creates a versioned `foundry-*` GitHub release containing
-   `role-bindings.json`, source commit, content hashes, worker identity IDs,
-   and the uploaded-skill/changed-toolbox lists. The Actions summary links to it
-   and provides the exact download command.
+Download and explicitly select a promoted binding for a new execution.
+Publication does not update worker configuration, existing manifests, credentials
+or Foundry's floating defaults. To roll back, prepare a new execution with a
+previous binding. Keep policy approval (`permitted_skills`) separate from
+published availability.
 
-The bot pushes with the repository's `GITHUB_TOKEN`, which does not trigger a
-second push workflow. There is no `[skip ci]` bypass: the current run validates
-the resulting commit. Stale runs stop, and bot pushes never force-overwrite a
-concurrent developer push. Pull before the next local change because CI may have
-added a catalog commit. A failed validation can leave that version commit in Git,
-but no new binding is promoted; retries do not repeatedly bump its version.
-
-Automatic versioning does not infer applicability or intended behavior.
-Roles/tasks/technologies and `evaluations.json` remain unchanged. For a new skill,
-provide a valid catalog entry and evaluation fixture (Copilot can author them);
-for changed applicability or expectations, edit them explicitly or ask Copilot.
-Optional PR validation still requires an appropriate version bump before merge;
-the automatic write-back is restricted to the main-branch publishing workflow.
-
-Unchanged versions are reused from the previous successful `foundry-*` release;
-they are still verified remotely. The single-role `--toolbox` command above is
-the original all-catalog publisher, not the role-aware CI path. For role
-publication, the workflow uses `--role-identities`, `--source-commit` and, after
-the first release, `--baseline`. Do not use the one-off
-`ai-factory\tools\setup_role_isolation.py` bootstrap script for subsequent releases.
-
-Publication jobs are serialized, reject superseded main commits, and never
-automatically retry mutations or delete old versions. A failed publication can
-leave unreferenced immutable versions; inspect the run and Foundry before
-retrying. Its previous promoted binding remains usable. Distribution checks
-verify exact bytes and references, not model behavior or native SDK activation.
-
-### Using a promoted release in the factory
-
-The new version is available through the exact pinned endpoints in the release
-binding. This does **not** change Foundry's unversioned service defaults or
-existing execution manifests. After downloading the binding with the Actions
-summary's command, prepare a new execution from the `ai-factory` directory:
-
-```powershell
-.\.venv\Scripts\ai-factory.exe prepare --source foundry --skill-mode provider `
-  --foundry-binding <downloaded-role-bindings.json> `
-  --target .\tests\fixtures\orders `
-  --request .\examples\request.json --policy .\examples\provider-policy.json
-```
-
-Keep the downloaded file pinned for that execution; to roll back, prepare a new
-execution with the previous release's binding. New skills must also be explicitly
-permitted in the factory policy. Publisher credentials are separate from worker
-credentials and Copilot model authentication; CI does not distribute worker
-private keys or run model sessions. The role-isolation experiment's temporary
-local-test keys were removed, so repeating those local sessions requires fresh
-worker credentials. The separate Azure coder demonstration used managed identity
-for Foundry; Copilot model authentication is a separate credential.
-
-### GitHub environment configuration
-
-The `foundry-publish` environment has no required reviewer or wait timer for this
-PoC and allows only the `main` branch. Removing human review is a deliberate demo
-simplification, not a production recommendation. Its Azure application has a
-federated credential with issuer
-`https://token.actions.githubusercontent.com`, audience
-`api://AzureADTokenExchange`, and subject
-`repo:katarinasvedman-ms@80513761/factory-skills@1455411481:environment:foundry-publish`.
-This is the actual ID-qualified subject observed in this repository's Actions
-token; do not assume the older name-only GitHub subject when configuring trust.
-It receives Foundry User only at the existing project's scope.
-
-Configure these environment variables, not secrets:
-`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
-`FOUNDRY_PROJECT_ENDPOINT`, and `FOUNDRY_ROLE_IDENTITIES`.
-The last is a JSON object mapping each existing role to `type`, `tenant_id`,
-`client_id` and `principal_id` of its worker identity. Protect `main` through
-repository rules as appropriate; workflow files alone do not enable protection.
-The executed RBAC experiment did not establish Toolbox authorization isolation:
-a scoped assignment was accepted, but own-200/cross-403 was never observed.
-Project-granted identities could access other role Toolboxes. Provider endpoint
-selection and `permitted_skills` are application filtering, not Azure-enforced
-role separation. The publisher's project-level Foundry User grant is broader than
-skill-read access and is not assigned to a subscription or resource group.
-
-## Initial publication (historical)
-
-On 2026-11-12, ten skills and the `factory-skills` toolbox version `1` were
-published to the existing, explicitly authorized `factory-skills` Foundry
-project. The generated binding is retained in
-`.artifacts\foundry-binding.json`, not embedded in agent code. Real resource
-discovery, pinned package retrieval, and SDK consumption were verified.
-
-Both repositories have since been published and their remote checks have run.
-Authoring permissions here do not grant the factory workers commit, push or
-deployment tools, or authorize cross-repository delivery by a skills-authoring
-assistant.
+Publisher, worker registry and model credentials serve different purposes.
+CI does not distribute worker private keys or run model sessions. Consult the
+consumer's documentation for its pinned runtime, preparation command,
+credential requirements and native activation evidence.
